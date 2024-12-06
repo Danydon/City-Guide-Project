@@ -1,0 +1,178 @@
+import java.awt.*; import java.awt.event.*;
+import java.util.ArrayList; import java.util.List;
+
+public class CityGuideAWT extends Frame {
+
+
+// Define the components
+private TextField cuisineInput, maxDistanceInput; private Choice priceRangeChoice;
+private CheckboxGroup dietaryOptionGroup;
+private Checkbox vegRadioButton, veganRadioButton, glutenFreeRadioButton, noneRadioButton;
+private TextArea resultArea; private Button searchButton;
+
+// Sample data: List of restaurants private List<Restaurant> restaurants;
+
+public CityGuideAWT() {
+// Set up the Frame
+setTitle("City Guide Restaurant Finder"); setSize(500, 500);
+setLayout(new FlowLayout());
+// Initialize restaurant data restaurants = new ArrayList<>();
+restaurants.add(new Restaurant("Spice Hub", "Indian", 4.5, 2.0, "Medium", "Vegetarian", "123-456-789", "10 AM - 10 PM"));
+restaurants.add(new Restaurant("Sushi Corner", "Japanese", 4.7, 1.5, "High", "None", "987-654-321", "11 AM - 9 PM"));
+restaurants.add(new Restaurant("Pasta House", "Italian", 4.3, 3.0, "Medium", "Gluten-Free", "321-654-987", "12 PM - 11 PM"));
+restaurants.add(new Restaurant("Burger Grill", "American", 4.0, 4.0, "Low", "Vegan", "456-789-123", "10 AM - 11 PM"));
+restaurants.add(new Restaurant("Taco Fiesta", "Mexican", 4.2, 2.5, "Low", "None", "789-123-456", "9 AM - 9 PM"));
+restaurants.add(new Restaurant("Curry King", "Indian", 4.8, 1.0, "High", "None", "555-555-555", "10 AM - 9 PM"));
+restaurants.add(new Restaurant("Dim Sum Delight", "Chinese", 4.6, 2.0, "Medium", "Gluten-Free", "333-333-333", "10 AM - 10 PM"));
+restaurants.add(new Restaurant("Steakhouse Grill", "American", 4.4, 5.0,
+"High", "None", "444-444-444", "12 PM - 11 PM"));
+restaurants.add(new Restaurant("Vegan Paradise", "Vegan", 4.9, 1.2,
+"Medium", "Vegan", "777-777-777", "9 AM - 10 PM"));
+restaurants.add(new Restaurant("Seafood Haven", "Seafood", 4.3, 3.5, "High", "None", "888-888-888", "11 AM - 10 PM"));
+restaurants.add(new Restaurant("Bistro Bon Appétit", "French", 4.6, 4.5, "Medium", "Gluten-Free", "999-999-999", "10 AM - 10 PM"));
+restaurants.add(new Restaurant("Pizzeria Luigi", "Italian", 4.2, 2.5, "Low", "None", "111-111-111", "10 AM - 11 PM"));
+restaurants.add(new Restaurant("Ramen Station", "Japanese", 4.7, 2.0,
+"Medium", "None", "222-222-222", "12 PM - 9 PM"));
+// UI components
+Label cuisineLabel = new Label("Enter your preferred cuisines (comma- separated):");
+cuisineInput = new TextField(20);
+
+
+Label priceRangeLabel = new Label("Select your preferred price range:"); priceRangeChoice = new Choice();
+priceRangeChoice.add("Low"); priceRangeChoice.add("Medium"); priceRangeChoice.add("High");
+
+Label dietaryOptionLabel = new Label("Select dietary restrictions:"); dietaryOptionGroup = new CheckboxGroup();
+vegRadioButton = new Checkbox("Vegetarian", dietaryOptionGroup, false); veganRadioButton = new Checkbox("Vegan", dietaryOptionGroup, false); glutenFreeRadioButton = new Checkbox("Gluten-Free", dietaryOptionGroup,
+false);
+noneRadioButton = new Checkbox("None", dietaryOptionGroup, true);
+
+
+Label maxDistanceLabel = new Label("Enter max distance (in km):"); maxDistanceInput = new TextField(5);
+
+searchButton = new Button("Search");
+
+
+resultArea = new TextArea(10, 30); resultArea.setEditable(false);
+
+// Add components to the frame add(cuisineLabel);
+ 
+add(cuisineInput); add(priceRangeLabel); add(priceRangeChoice); add(dietaryOptionLabel); add(vegRadioButton); add(veganRadioButton); add(glutenFreeRadioButton); add(noneRadioButton); add(maxDistanceLabel); add(maxDistanceInput); add(searchButton); add(resultArea);
+
+// Add event listener to the search button searchButton.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent e) { searchRestaurants();
+}
+});
+
+
+// Set visibility and close operation setVisible(true);
+addWindowListener(new WindowAdapter() { public void windowClosing(WindowEvent we) {
+System.exit(0);
+}
+});
+}
+ 
+// Method to search and filter restaurants based on user input private void searchRestaurants() {
+String cuisineInputText = cuisineInput.getText().toLowerCase(); List<String> preferredCuisines = List.of(cuisineInputText.split("\\s*,\\s*"));
+
+String priceRange = priceRangeChoice.getSelectedItem().toLowerCase(); String dietaryOption = getSelectedDietaryOption();
+
+double maxDistance = Double.parseDouble(maxDistanceInput.getText());
+
+
+List<Restaurant> filteredRestaurants = filterByCuisine(restaurants, preferredCuisines);
+filteredRestaurants = filterByPriceRange(filteredRestaurants, priceRange); filteredRestaurants = filterByDietaryOptions(filteredRestaurants,
+dietaryOption);
+filteredRestaurants = filterByDistance(filteredRestaurants, maxDistance);
+
+
+// Display the results
+resultArea.setText(""); // Clear previous results if (filteredRestaurants.isEmpty()) {
+resultArea.append("No restaurants found matching your preferences.");
+} else {
+for (Restaurant r : filteredRestaurants) { resultArea.append(r.displayInfo() + "\n\n");
+}
+}
+}
+
+
+// Get selected dietary option from radio buttons
+ 
+private String getSelectedDietaryOption() { if (vegRadioButton.getState()) {
+return "Vegetarian";
+} else if (veganRadioButton.getState()) { return "Vegan";
+} else if (glutenFreeRadioButton.getState()) { return "Gluten-Free";
+} else {
+return "None";
+}
+}
+
+
+// Filter restaurants based on cuisine
+private List<Restaurant> filterByCuisine(List<Restaurant> restaurants, List<String> preferredCuisines) {
+List<Restaurant> result = new ArrayList<>(); for (Restaurant r : restaurants) {
+if (preferredCuisines.contains(r.cuisine.toLowerCase())) { result.add(r);
+}
+}
+return result;
+}
+
+
+// Filter restaurants based on price range
+private List<Restaurant> filterByPriceRange(List<Restaurant> restaurants, String priceRange) {
+List<Restaurant> result = new ArrayList<>(); for (Restaurant r : restaurants) {
+ 
+if (r.priceRange.equalsIgnoreCase(priceRange)) { result.add(r);
+}
+}
+return result;
+}
+
+
+// Filter restaurants based on dietary restrictions
+private List<Restaurant> filterByDietaryOptions(List<Restaurant> restaurants, String dietaryOption) {
+List<Restaurant> result = new ArrayList<>(); for (Restaurant r : restaurants) {
+if (r.dietaryOptions.equalsIgnoreCase(dietaryOption)) { result.add(r);
+}
+}
+return result;
+}
+
+
+// Filter restaurants based on distance
+private List<Restaurant> filterByDistance(List<Restaurant> restaurants, double maxDistance) {
+List<Restaurant> result = new ArrayList<>(); for (Restaurant r : restaurants) {
+if (r.distance <= maxDistance) { // Check if the distance is less than or equal to the entered max distance
+result.add(r);
+}
+}
+ 
+return result;
+}
+
+
+// Main method to run the application public static void main(String[] args) {
+new CityGuideAWT(); // Create and display the frame
+}
+}
+
+
+class Restaurant { String name; String cuisine; double rating;
+double distance; // in kilometers String priceRange;
+String dietaryOptions; // e.g., "Vegetarian", "Vegan", "Gluten-Free", "None" String contactInfo;
+String openingHours;
+
+
+public Restaurant(String name, String cuisine, double rating, double distance, String priceRange, String dietaryOptions, String contactInfo, String openingHours)
+{
+this.name = name; this.cuisine = cuisine; this.rating = rating; this.distance = distance; this.priceRange = priceRange;
+this.dietaryOptions = dietaryOptions; this.contactInfo = contactInfo;
+ 
+this.openingHours = openingHours;
+}
+
+
+// Method to display restaurant details public String displayInfo() {
+return name + " - " + cuisine + "\nRating: " + rating + "\nPrice Range: " + priceRange +
+"\nDistance: " + distance + " km\nDietary Options: " + dietaryOptions + "\nContact Info: " + contactInfo + "\nOpening Hours: " + openingHours;
+}
+}
